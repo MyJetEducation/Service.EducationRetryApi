@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Service.Core.Domain.Models.Education;
+using Service.Core.Client.Education;
 
 namespace Service.EducationRetryApi.Models
 {
