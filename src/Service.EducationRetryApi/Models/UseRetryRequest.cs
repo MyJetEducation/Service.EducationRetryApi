@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Service.Core.Client.Education;
 
 namespace Service.EducationRetryApi.Models
@@ -6,12 +7,19 @@ namespace Service.EducationRetryApi.Models
 	public class UseRetryRequest
 	{
 		[Required]
+		[Range(1, 9)]
+		[DefaultValue(EducationTutorial.PersonalFinance)]
+		[EnumDataType(typeof(EducationTutorial))]
 		public EducationTutorial Tutorial { get; set; }
 
 		[Required]
+		[Range(1, 5)]
+		[DefaultValue(1)]
 		public int Unit { get; set; }
 
 		[Required]
+		[Range(1, 6)]
+		[DefaultValue(1)]
 		public int Task { get; set; }
 	}
 }
