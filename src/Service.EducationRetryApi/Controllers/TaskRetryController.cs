@@ -11,6 +11,7 @@ using Service.Education.Helpers;
 using Service.EducationRetry.Grpc;
 using Service.EducationRetry.Grpc.Models;
 using Service.EducationRetryApi.Models;
+using Service.Grpc;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
 
@@ -25,10 +26,10 @@ namespace Service.EducationRetryApi.Controllers
 	[Route("/api/v1/retry")]
 	public class TaskRetryController : ControllerBase
 	{
-		private readonly IEducationRetryService _educationRetryService;
+		private readonly IGrpcServiceProxy<IEducationRetryService> _educationRetryService;
 		private readonly IUserInfoService _userInfoService;
 
-		public TaskRetryController(IUserInfoService userInfoService, IEducationRetryService educationRetryService)
+		public TaskRetryController(IUserInfoService userInfoService, IGrpcServiceProxy<IEducationRetryService> educationRetryService)
 		{
 			_userInfoService = userInfoService;
 			_educationRetryService = educationRetryService;
@@ -42,7 +43,7 @@ namespace Service.EducationRetryApi.Controllers
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
-			RetryCountGrpcResponse response = await _educationRetryService.GetRetryCountAsync(new GetRetryCountGrpcRequest
+			RetryCountGrpcResponse response = await _educationRetryService.Service.GetRetryCountAsync(new GetRetryCountGrpcRequest
 			{
 				UserId = userId
 			});
@@ -53,24 +54,24 @@ namespace Service.EducationRetryApi.Controllers
 		[HttpPost("use-bydate")]
 		[SwaggerResponse(HttpStatusCode.OK, typeof (DataResponse<int>), Description = "Ok")]
 		public async ValueTask<IActionResult> UseRetryByDateAsync([FromBody] UseRetryRequest request) =>
-			await Process(request, userId => _educationRetryService.DecreaseRetryDateAsync(new DecreaseRetryDateGrpcRequest
+			await Process(request, userId => _educationRetryService.TryCall(service => service.DecreaseRetryDateAsync(new DecreaseRetryDateGrpcRequest
 			{
 				UserId = userId,
 				Tutorial = request.Tutorial,
 				Unit = request.Unit,
 				Task = request.Task
-			}));
+			})));
 
 		[HttpPost("use-bycount")]
 		[SwaggerResponse(HttpStatusCode.OK, typeof (DataResponse<int>), Description = "Ok")]
 		public async ValueTask<IActionResult> UseRetryByCountAsync([FromBody] UseRetryRequest request) =>
-			await Process(request, userId => _educationRetryService.DecreaseRetryCountAsync(new DecreaseRetryCountGrpcRequest
+			await Process(request, userId => _educationRetryService.TryCall(service => service.DecreaseRetryCountAsync(new DecreaseRetryCountGrpcRequest
 			{
 				UserId = userId,
 				Tutorial = request.Tutorial,
 				Unit = request.Unit,
 				Task = request.Task
-			}));
+			})));
 
 		private async ValueTask<IActionResult> Process(UseRetryRequest request, Func<Guid?, ValueTask<CommonGrpcResponse>> grpcRequestFunc)
 		{
