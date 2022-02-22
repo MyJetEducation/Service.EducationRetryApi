@@ -27,9 +27,9 @@ namespace Service.EducationRetryApi.Controllers
 	public class TaskRetryController : ControllerBase
 	{
 		private readonly IGrpcServiceProxy<IEducationRetryService> _educationRetryService;
-		private readonly IUserInfoService _userInfoService;
+		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 
-		public TaskRetryController(IUserInfoService userInfoService, IGrpcServiceProxy<IEducationRetryService> educationRetryService)
+		public TaskRetryController(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IEducationRetryService> educationRetryService)
 		{
 			_userInfoService = userInfoService;
 			_educationRetryService = educationRetryService;
@@ -89,7 +89,7 @@ namespace Service.EducationRetryApi.Controllers
 
 		private async ValueTask<Guid?> GetUserIdAsync()
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.GetUserInfoByLoginAsync(new UserInfoAuthRequest
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest
 			{
 				UserName = User.Identity?.Name
 			});
