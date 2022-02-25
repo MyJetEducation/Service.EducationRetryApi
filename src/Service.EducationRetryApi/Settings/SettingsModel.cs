@@ -17,9 +17,6 @@ namespace Service.EducationRetryApi.Settings
 		[YamlProperty("EducationRetryApi.JwtAudience")]
 		public string JwtAudience { get; set; }
 
-		[YamlProperty("EducationRetryApi.UserInfoCrudServiceUrl")]
-		public string UserInfoCrudServiceUrl { get; set; }
-
 		[YamlProperty("EducationRetryApi.EducationRetryServiceUrl")]
 		public string EducationRetryServiceUrl { get; set; }
 	}

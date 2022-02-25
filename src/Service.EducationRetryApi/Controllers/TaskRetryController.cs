@@ -12,8 +12,6 @@ using Service.EducationRetry.Grpc;
 using Service.EducationRetry.Grpc.Models;
 using Service.EducationRetryApi.Models;
 using Service.Grpc;
-using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.EducationRetryApi.Controllers
 {
@@ -27,19 +25,14 @@ namespace Service.EducationRetryApi.Controllers
 	public class TaskRetryController : ControllerBase
 	{
 		private readonly IGrpcServiceProxy<IEducationRetryService> _educationRetryService;
-		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 
-		public TaskRetryController(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IEducationRetryService> educationRetryService)
-		{
-			_userInfoService = userInfoService;
-			_educationRetryService = educationRetryService;
-		}
+		public TaskRetryController(IGrpcServiceProxy<IEducationRetryService> educationRetryService) => _educationRetryService = educationRetryService;
 
 		[HttpPost("count")]
 		[SwaggerResponse(HttpStatusCode.OK, typeof (DataResponse<int>), Description = "Ok")]
 		public async ValueTask<IActionResult> GetRetryCountAsync()
 		{
-			Guid? userId = await GetUserIdAsync();
+			Guid? userId = GetUserId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
@@ -78,7 +71,7 @@ namespace Service.EducationRetryApi.Controllers
 			if (EducationHelper.GetTask(request.Tutorial, request.Unit, request.Task) == null)
 				return StatusResponse.Error(ResponseCode.NotValidEducationRequestData);
 
-			Guid? userId = await GetUserIdAsync();
+			Guid? userId = GetUserId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
@@ -87,15 +80,7 @@ namespace Service.EducationRetryApi.Controllers
 			return Result(response?.IsSuccess);
 		}
 
-		private async ValueTask<Guid?> GetUserIdAsync()
-		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest
-			{
-				UserName = User.Identity?.Name
-			});
-
-			return userInfoResponse?.UserInfo?.UserId;
-		}
+		private Guid? GetUserId() => Guid.TryParse(User.Identity?.Name, out Guid uid) ? (Guid?)uid : null;
 
 		private static IActionResult Result(bool? isSuccess) => isSuccess == true ? StatusResponse.Ok() : StatusResponse.Error();
 	}
