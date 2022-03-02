@@ -14,9 +14,6 @@ namespace Service.EducationRetryApi.Settings
 		[YamlProperty("EducationRetryApi.ElkLogs")]
 		public LogElkSettings ElkLogs { get; set; }
 
-		[YamlProperty("EducationRetryApi.JwtAudience")]
-		public string JwtAudience { get; set; }
-
 		[YamlProperty("EducationRetryApi.EducationRetryServiceUrl")]
 		public string EducationRetryServiceUrl { get; set; }
 	}
