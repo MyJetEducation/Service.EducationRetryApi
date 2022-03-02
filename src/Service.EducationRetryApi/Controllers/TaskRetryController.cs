@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
-using Service.Core.Client.Constants;
 using Service.Core.Client.Models;
 using Service.Education.Helpers;
 using Service.EducationRetry.Grpc;
 using Service.EducationRetry.Grpc.Models;
 using Service.EducationRetryApi.Models;
 using Service.Grpc;
+using Service.Web;
 
 namespace Service.EducationRetryApi.Controllers
 {
@@ -77,11 +77,9 @@ namespace Service.EducationRetryApi.Controllers
 
 			CommonGrpcResponse response = await grpcRequestFunc.Invoke(userId);
 
-			return Result(response?.IsSuccess);
+			return StatusResponse.Result(response);
 		}
 
 		private Guid? GetUserId() => Guid.TryParse(User.Identity?.Name, out Guid uid) ? (Guid?)uid : null;
-
-		private static IActionResult Result(bool? isSuccess) => isSuccess == true ? StatusResponse.Ok() : StatusResponse.Error();
 	}
 }

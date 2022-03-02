@@ -8,21 +8,25 @@ using Microsoft.Extensions.Hosting;
 using MyJetWallet.Sdk.Service;
 using Prometheus;
 using Service.EducationRetryApi.Modules;
+using Service.Web;
 using SimpleTrading.ServiceStatusReporterConnector;
 
 namespace Service.EducationRetryApi
 {
 	public class Startup
 	{
+		private const string DocumentName = "retry";
+		private const string ApiName = "EducationRetryApi";
+
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddHostedService<ApplicationLifetimeManager>();
 			services.AddMyTelemetry("ED-", Program.Settings.ZipkinUrl);
-			services.SetupSwaggerDocumentation();
+			services.SetupSwaggerDocumentation(DocumentName, ApiName);
 			services.ConfigurateHeaders();
 			services.AddControllers();
 			services.AddAuthentication(StartupUtils.ConfigureAuthenticationOptions)
-				.AddJwtBearer(StartupUtils.ConfigureJwtBearerOptions);
+				.AddJwtBearer(options => StartupUtils.ConfigureJwtBearerOptions(options, Program.Settings.JwtAudience, Program.JwtSecret));
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -39,7 +43,7 @@ namespace Service.EducationRetryApi
 			app.UseOpenApi();
 			app.UseAuthentication();
 			app.UseAuthorization();
-			app.SetupSwagger();
+			app.SetupSwagger(DocumentName, ApiName);
 
 			app.UseEndpoints(endpoints =>
 			{
