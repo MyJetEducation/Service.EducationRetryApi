@@ -4,16 +4,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyJetWallet.Sdk.Authorization.Http;
 using NSwag.Annotations;
+using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Helpers;
 using Service.EducationRetry.Grpc;
 using Service.EducationRetry.Grpc.Models;
-using Service.EducationRetryApi.Models;
 using Service.Grpc;
+using Service.WalletApi.EducationRetryApi.Controllers.Contracts;
 using Service.Web;
 
-namespace Service.EducationRetryApi.Controllers
+namespace Service.WalletApi.EducationRetryApi.Controllers
 {
 	[Authorize]
 	[ApiController]
@@ -80,6 +82,13 @@ namespace Service.EducationRetryApi.Controllers
 			return StatusResponse.Result(response);
 		}
 
-		private Guid? GetUserId() => Guid.TryParse(User.Identity?.Name, out Guid uid) ? (Guid?)uid : null;
+		protected Guid? GetUserId()
+		{
+			string clientId = this.GetClientId();
+			if (clientId.IsNullOrWhiteSpace())
+				return null;
+
+			return Guid.TryParse(clientId, out Guid uid) ? (Guid?) uid : null;
+		}
 	}
 }
