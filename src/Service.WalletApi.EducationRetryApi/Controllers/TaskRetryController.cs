@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyJetWallet.Sdk.Authorization.Http;
 using NSwag.Annotations;
-using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Helpers;
 using Service.EducationRetry.Grpc;
@@ -34,7 +33,7 @@ namespace Service.WalletApi.EducationRetryApi.Controllers
 		[SwaggerResponse(HttpStatusCode.OK, typeof (DataResponse<int>), Description = "Ok")]
 		public async ValueTask<IActionResult> GetRetryCountAsync()
 		{
-			Guid? userId = GetUserId();
+			string userId = this.GetClientId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
@@ -68,27 +67,18 @@ namespace Service.WalletApi.EducationRetryApi.Controllers
 				Task = request.Task
 			})));
 
-		private async ValueTask<IActionResult> Process(UseRetryRequest request, Func<Guid?, ValueTask<CommonGrpcResponse>> grpcRequestFunc)
+		private async ValueTask<IActionResult> Process(UseRetryRequest request, Func<string, ValueTask<CommonGrpcResponse>> grpcRequestFunc)
 		{
 			if (EducationHelper.GetTask(request.Tutorial, request.Unit, request.Task) == null)
 				return StatusResponse.Error(ResponseCode.NotValidEducationRequestData);
 
-			Guid? userId = GetUserId();
+			string userId = this.GetClientId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
 			CommonGrpcResponse response = await grpcRequestFunc.Invoke(userId);
 
 			return StatusResponse.Result(response);
-		}
-
-		protected Guid? GetUserId()
-		{
-			string clientId = this.GetClientId();
-			if (clientId.IsNullOrWhiteSpace())
-				return null;
-
-			return Guid.TryParse(clientId, out Guid uid) ? (Guid?) uid : null;
 		}
 	}
 }
