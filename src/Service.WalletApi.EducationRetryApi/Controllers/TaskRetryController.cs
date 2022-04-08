@@ -4,16 +4,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyJetWallet.Sdk.Authorization.Http;
 using NSwag.Annotations;
 using Service.Core.Client.Models;
 using Service.Education.Helpers;
 using Service.EducationRetry.Grpc;
 using Service.EducationRetry.Grpc.Models;
-using Service.EducationRetryApi.Models;
 using Service.Grpc;
+using Service.WalletApi.EducationRetryApi.Controllers.Contracts;
 using Service.Web;
 
-namespace Service.EducationRetryApi.Controllers
+namespace Service.WalletApi.EducationRetryApi.Controllers
 {
 	[Authorize]
 	[ApiController]
@@ -32,7 +33,7 @@ namespace Service.EducationRetryApi.Controllers
 		[SwaggerResponse(HttpStatusCode.OK, typeof (DataResponse<int>), Description = "Ok")]
 		public async ValueTask<IActionResult> GetRetryCountAsync()
 		{
-			Guid? userId = GetUserId();
+			string userId = this.GetClientId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
@@ -66,12 +67,12 @@ namespace Service.EducationRetryApi.Controllers
 				Task = request.Task
 			})));
 
-		private async ValueTask<IActionResult> Process(UseRetryRequest request, Func<Guid?, ValueTask<CommonGrpcResponse>> grpcRequestFunc)
+		private async ValueTask<IActionResult> Process(UseRetryRequest request, Func<string, ValueTask<CommonGrpcResponse>> grpcRequestFunc)
 		{
 			if (EducationHelper.GetTask(request.Tutorial, request.Unit, request.Task) == null)
 				return StatusResponse.Error(ResponseCode.NotValidEducationRequestData);
 
-			Guid? userId = GetUserId();
+			string userId = this.GetClientId();
 			if (userId == null)
 				return StatusResponse.Error(ResponseCode.UserNotFound);
 
@@ -79,7 +80,5 @@ namespace Service.EducationRetryApi.Controllers
 
 			return StatusResponse.Result(response);
 		}
-
-		private Guid? GetUserId() => Guid.TryParse(User.Identity?.Name, out Guid uid) ? (Guid?)uid : null;
 	}
 }

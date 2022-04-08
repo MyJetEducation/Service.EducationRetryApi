@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace Service.EducationRetryApi.Modules
+namespace Service.WalletApi.EducationRetryApi.Modules
 {
     public class SettingsModule : Module
     {

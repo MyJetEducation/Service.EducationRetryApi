@@ -2,14 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using Service.Education.Structure;
 
-namespace Service.EducationRetryApi.Models
+namespace Service.WalletApi.EducationRetryApi.Controllers.Contracts
 {
 	public class UseRetryRequest
 	{
 		[Required]
 		[Range(1, 9)]
 		[DefaultValue(EducationTutorial.PersonalFinance)]
-		[EnumDataType(typeof(EducationTutorial))]
+		[EnumDataType(typeof (EducationTutorial))]
 		public EducationTutorial Tutorial { get; set; }
 
 		[Required]

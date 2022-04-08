@@ -1,9 +1,9 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace Service.EducationRetryApi.Tests
+namespace Service.WalletApi.EducationRetryApi.Tests
 {
-    public class TestExample
+    public class TestEducationRetryApi
     {
         [SetUp]
         public void Setup()
