@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using MyJetWallet.ApiSecurityManager.Autofac;
 using MyJetWallet.Sdk.RestApiTrace;
-using MyJetWallet.Sdk.Service;
 using Service.EducationRetry.Client;
 
 namespace Service.WalletApi.EducationRetryApi.Modules
@@ -11,8 +10,7 @@ namespace Service.WalletApi.EducationRetryApi.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			// second parameter is null because we do not store api keys yet for wallet api
-			builder.RegisterEncryptionServiceClient(ApplicationEnvironment.AppName, () => Program.Settings.MyNoSqlWriterUrl);
+			builder.RegisterEncryptionServiceClient();
 
 			builder.RegisterEducationRetryClient(Program.Settings.EducationRetryServiceUrl, Program.LoggerFactory.CreateLogger(typeof (EducationRetryClientFactory)));
 
